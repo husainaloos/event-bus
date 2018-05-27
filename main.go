@@ -14,7 +14,7 @@ func main() {
 	c := controllers.NewDemoController("controller1")
 	p1 := publishers.NewDemoPublisher("publisher1")
 	p2 := publishers.NewDemoPublisher("publisher2")
-	f := filters.NewYesFilter()
+	f := filters.NewAlwaysAllowFilter()
 	s := subscribers.NewDemoSubscriber("subscriber1")
 
 	c.RegisterPublisher(p1)
