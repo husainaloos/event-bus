@@ -1,6 +1,6 @@
 # event-bus
 
-[](https://travis-ci.com/husainaloos/event-bus.svg?branch=master)
+![Build Status](https://travis-ci.com/husainaloos/event-bus.svg?branch=master)
 
 A small event bus in go
 
