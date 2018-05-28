@@ -64,6 +64,7 @@ func (p *DemoPublisher) Start() error {
 }
 
 // Stop stops the publisher
-func (p *DemoPublisher) Stop() {
+func (p *DemoPublisher) Stop() error {
 	p.isRunning = false
+	return nil
 }

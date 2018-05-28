@@ -96,7 +96,9 @@ func (c *DemoController) handlePublishedMessages() {
 // Stop stops the controller
 func (c *DemoController) Stop() {
 	for _, p := range c.publishers {
-		p.Stop()
+		if err := p.Stop(); err != nil {
+			log.Fatalf("error occured while stopping publisher %s: %v", p.GetID(), err)
+		}
 	}
 
 	for _, v := range c.subscriptionModel {

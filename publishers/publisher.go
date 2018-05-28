@@ -7,5 +7,5 @@ type Publisher interface {
 	GetID() string
 	PublishTo(*chan (messages.Message))
 	Start() error
-	Stop()
+	Stop() error
 }
