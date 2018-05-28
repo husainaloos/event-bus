@@ -15,7 +15,7 @@ func main() {
 	p1 := publishers.NewDemoPublisher("publisher1")
 	p2 := publishers.NewDemoPublisher("publisher2")
 	f := filters.NewAlwaysAllowFilter()
-	s := subscribers.NewDemoSubscriber("subscriber1")
+	s := subscribers.NewWriterSubscriber("subscriber1", os.Stdout)
 
 	c.RegisterPublisher(p1)
 	c.RegisterPublisher(p2)

@@ -52,7 +52,7 @@ func (p *DemoPublisher) Start() error {
 		}
 
 		*p.publishToChannel <- messages.Message{
-			CreatedAt: time.Now(),
+			CreatedAt: time.Now().UTC(),
 			ID:        id.String(),
 			Payload:   fmt.Sprintf("message from %s", p.ID),
 			Tags:      nil,
