@@ -1,0 +1,9 @@
+language: go
+go:
+    - "1.10"
+    - master
+install: true
+before_script:
+  - go get
+script:
+  - go test -v -cover ./...
