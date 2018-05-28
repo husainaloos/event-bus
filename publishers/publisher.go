@@ -6,6 +6,6 @@ import "github.com/husainaloos/event-bus/messages"
 type Publisher interface {
 	GetID() string
 	PublishTo(*chan (messages.Message))
-	Start()
+	Start() error
 	Stop()
 }

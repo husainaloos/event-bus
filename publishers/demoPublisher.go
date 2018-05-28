@@ -12,7 +12,7 @@ import (
 // DemoPublisher demo publisher for testing and demonistration only
 type DemoPublisher struct {
 	ID               string
-	PublishToChannel *chan (messages.Message)
+	publishToChannel *chan (messages.Message)
 	isRunning        bool
 }
 
@@ -20,7 +20,7 @@ type DemoPublisher struct {
 func NewDemoPublisher(ID string) *DemoPublisher {
 	return &DemoPublisher{
 		ID:               ID,
-		PublishToChannel: nil,
+		publishToChannel: nil,
 		isRunning:        false,
 	}
 }
@@ -32,11 +32,11 @@ func (p DemoPublisher) GetID() string {
 
 // PublishTo publishes to channel
 func (p *DemoPublisher) PublishTo(channel *chan (messages.Message)) {
-	p.PublishToChannel = channel
+	p.publishToChannel = channel
 }
 
 // Start starts the publisher
-func (p *DemoPublisher) Start() {
+func (p *DemoPublisher) Start() error {
 	p.isRunning = true
 
 	for {
@@ -46,9 +46,12 @@ func (p *DemoPublisher) Start() {
 			break
 		}
 
-		id, _ := uuid.NewV4()
+		id, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
 
-		*p.PublishToChannel <- messages.Message{
+		*p.publishToChannel <- messages.Message{
 			CreatedAt: time.Now(),
 			ID:        id.String(),
 			Payload:   fmt.Sprintf("message from %s", p.ID),
@@ -56,6 +59,8 @@ func (p *DemoPublisher) Start() {
 			SourceID:  p.ID,
 		}
 	}
+
+	return nil
 }
 
 // Stop stops the publisher

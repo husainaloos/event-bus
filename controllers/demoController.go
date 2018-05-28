@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"log"
+
 	"github.com/husainaloos/event-bus/filters"
 	"github.com/husainaloos/event-bus/messages"
 	"github.com/husainaloos/event-bus/publishers"
@@ -55,7 +57,13 @@ func (c *DemoController) RegisterSubscriber(f filters.Filter, s subscribers.Subs
 func (c *DemoController) Start() {
 	for _, p := range c.publishers {
 		p.PublishTo(&c.publishChannel)
-		go p.Start()
+
+		go func(p publishers.Publisher) {
+			err := p.Start()
+			if err != nil {
+				log.Fatalf("error occured while starting publisher %s: %v", p.GetID(), err)
+			}
+		}(p)
 	}
 
 	for _, v := range c.subscriptionModel {

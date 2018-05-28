@@ -1,7 +1,7 @@
 package subscribers
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/husainaloos/event-bus/messages"
 )
@@ -33,7 +33,7 @@ func (s *DemoSubscriber) Subscribe(m messages.Message) {
 		return
 	}
 
-	fmt.Printf("subscriber %s received message: %s with ID %s\n", s.ID, m.Payload, m.ID)
+	log.Printf("subscriber %s received message: %s with ID %s\n", s.ID, m.Payload, m.ID)
 	//s.doneChannel <- m
 }
 
