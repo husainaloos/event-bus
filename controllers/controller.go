@@ -7,9 +7,9 @@ import (
 )
 
 type Controller interface {
-	GetID() string
+	ID() string
 	RegisterPublisher(publishers.Publisher)
 	RegisterSubscriber(filters.Filter, subscribers.Subscriber)
-	Start()
+	Run()
 	Stop()
 }

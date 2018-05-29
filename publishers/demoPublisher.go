@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/satori/go.uuid"
-
 	"github.com/husainaloos/event-bus/messages"
+	"github.com/satori/go.uuid"
 )
 
 // DemoPublisher demo publisher for testing and demonistration only
 type DemoPublisher struct {
-	ID               string
+	id               string
 	publishToChannel *chan (messages.Message)
 	isRunning        bool
 }
@@ -19,15 +18,15 @@ type DemoPublisher struct {
 // NewDemoPublisher constructor
 func NewDemoPublisher(ID string) *DemoPublisher {
 	return &DemoPublisher{
-		ID:               ID,
+		id:               ID,
 		publishToChannel: nil,
 		isRunning:        false,
 	}
 }
 
-// GetID gets the ID
-func (p DemoPublisher) GetID() string {
-	return p.ID
+// ID gets the ID
+func (p DemoPublisher) ID() string {
+	return p.id
 }
 
 // PublishTo publishes to channel
@@ -35,8 +34,8 @@ func (p *DemoPublisher) PublishTo(channel *chan (messages.Message)) {
 	p.publishToChannel = channel
 }
 
-// Start starts the publisher
-func (p *DemoPublisher) Start() error {
+// Run starts the publisher
+func (p *DemoPublisher) Run() error {
 	p.isRunning = true
 
 	for {
@@ -54,9 +53,9 @@ func (p *DemoPublisher) Start() error {
 		*p.publishToChannel <- messages.Message{
 			CreatedAt: time.Now().UTC(),
 			ID:        id.String(),
-			Payload:   fmt.Sprintf("message from %s", p.ID),
+			Payload:   fmt.Sprintf("message from %s", p.id),
 			Tags:      nil,
-			SourceID:  p.ID,
+			SourceID:  p.id,
 		}
 	}
 

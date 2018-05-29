@@ -6,9 +6,9 @@ import (
 
 // Subscriber the subscriber to a message
 type Subscriber interface {
-	GetID() string
+	ID() string
 	Subscribe(messages.Message)
-	Start()
+	Run()
 	GetDoneChannel() chan (messages.Message)
 	Stop()
 }

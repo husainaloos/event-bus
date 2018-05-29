@@ -18,7 +18,7 @@ func TestAlwaysAllowFilter_Allow(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "Should allow any generic message",
+			name: "should allow any generic message",
 			f:    AlwaysAllowFilter{},
 			args: args{
 				m: messages.Message{
@@ -33,7 +33,7 @@ func TestAlwaysAllowFilter_Allow(t *testing.T) {
 		},
 
 		{
-			name: "Should allow empty message",
+			name: "should allow empty message",
 			f:    AlwaysAllowFilter{},
 			args: args{
 				m: messages.Message{},

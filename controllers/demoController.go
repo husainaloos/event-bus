@@ -11,7 +11,7 @@ import (
 
 // DemoController demo controller
 type DemoController struct {
-	ID                string
+	id                string
 	publishers        []publishers.Publisher
 	subscriptionModel map[filters.Filter][]subscribers.Subscriber
 	publishChannel    chan (messages.Message)
@@ -21,7 +21,7 @@ type DemoController struct {
 // NewDemoController constructor
 func NewDemoController(ID string) *DemoController {
 	return &DemoController{
-		ID:                ID,
+		id:                ID,
 		publishChannel:    make(chan messages.Message),
 		publishers:        make([]publishers.Publisher, 0),
 		subscriptionModel: make(map[filters.Filter][]subscribers.Subscriber),
@@ -29,9 +29,9 @@ func NewDemoController(ID string) *DemoController {
 	}
 }
 
-// GetID gets the ID
-func (c DemoController) GetID() string {
-	return c.ID
+// ID gets the ID
+func (c DemoController) ID() string {
+	return c.id
 }
 
 // RegisterPublisher registers a publisher
@@ -59,16 +59,16 @@ func (c *DemoController) Start() {
 		p.PublishTo(&c.publishChannel)
 
 		go func(p publishers.Publisher) {
-			err := p.Start()
+			err := p.Run()
 			if err != nil {
-				log.Fatalf("error occured while starting publisher %s: %v", p.GetID(), err)
+				log.Fatalf("error occured while starting publisher %s: %v", p.ID(), err)
 			}
 		}(p)
 	}
 
 	for _, v := range c.subscriptionModel {
 		for _, s := range v {
-			go s.Start()
+			go s.Run()
 		}
 	}
 
@@ -97,7 +97,7 @@ func (c *DemoController) handlePublishedMessages() {
 func (c *DemoController) Stop() {
 	for _, p := range c.publishers {
 		if err := p.Stop(); err != nil {
-			log.Fatalf("error occured while stopping publisher %s: %v", p.GetID(), err)
+			log.Fatalf("error occured while stopping publisher %s: %v", p.ID(), err)
 		}
 	}
 
