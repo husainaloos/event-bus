@@ -15,8 +15,8 @@ type TimedPublisher struct {
 	isRunning        bool
 }
 
-// NewDemoPublisher constructor
-func NewDemoPublisher(ID string) *TimedPublisher {
+// NewTimedPublisher constructor
+func NewTimedPublisher(ID string) *TimedPublisher {
 	return &TimedPublisher{
 		id:               ID,
 		publishToChannel: nil,

@@ -12,8 +12,8 @@ import (
 
 func main() {
 	c := controllers.NewDemoController("controller1")
-	p1 := publishers.NewDemoPublisher("publisher1")
-	p2 := publishers.NewDemoPublisher("publisher2")
+	p1 := publishers.NewTimedPublisher("publisher1")
+	p2 := publishers.NewTimedPublisher("publisher2")
 	f := filters.NewAlwaysAllowFilter()
 	s := subscribers.NewWriterSubscriber("subscriber1", os.Stdout)
 
