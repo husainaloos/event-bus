@@ -8,16 +8,16 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-// DemoPublisher demo publisher for testing and demonistration only
-type DemoPublisher struct {
+// TimedPublisher demo publisher for testing and demonistration only
+type TimedPublisher struct {
 	id               string
 	publishToChannel *chan (messages.Message)
 	isRunning        bool
 }
 
 // NewDemoPublisher constructor
-func NewDemoPublisher(ID string) *DemoPublisher {
-	return &DemoPublisher{
+func NewDemoPublisher(ID string) *TimedPublisher {
+	return &TimedPublisher{
 		id:               ID,
 		publishToChannel: nil,
 		isRunning:        false,
@@ -25,17 +25,17 @@ func NewDemoPublisher(ID string) *DemoPublisher {
 }
 
 // ID gets the ID
-func (p DemoPublisher) ID() string {
+func (p TimedPublisher) ID() string {
 	return p.id
 }
 
 // PublishTo publishes to channel
-func (p *DemoPublisher) PublishTo(channel *chan (messages.Message)) {
+func (p *TimedPublisher) PublishTo(channel *chan (messages.Message)) {
 	p.publishToChannel = channel
 }
 
 // Run starts the publisher
-func (p *DemoPublisher) Run() error {
+func (p *TimedPublisher) Run() error {
 	p.isRunning = true
 
 	for {
@@ -63,7 +63,7 @@ func (p *DemoPublisher) Run() error {
 }
 
 // Stop stops the publisher
-func (p *DemoPublisher) Stop() error {
+func (p *TimedPublisher) Stop() error {
 	p.isRunning = false
 	return nil
 }
