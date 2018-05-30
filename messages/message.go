@@ -2,11 +2,10 @@ package messages
 
 import "time"
 
-// Message Object to hold data from publisher to subscriber
+// Message is what publishers publish to the controller
 type Message struct {
 	ID        string
 	CreatedAt time.Time
 	Payload   interface{}
 	Tags      map[string]string
-	SourceID  string
 }

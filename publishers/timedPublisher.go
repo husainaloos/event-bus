@@ -55,7 +55,6 @@ func (p *TimedPublisher) Run() error {
 			ID:        id.String(),
 			Payload:   fmt.Sprintf("message from %s", p.id),
 			Tags:      nil,
-			SourceID:  p.id,
 		}
 	}
 

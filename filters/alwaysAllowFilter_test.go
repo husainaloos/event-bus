@@ -25,7 +25,6 @@ func TestAlwaysAllowFilter_Allow(t *testing.T) {
 					CreatedAt: time.Now(),
 					ID:        "123",
 					Payload:   "with payload",
-					SourceID:  "some source",
 					Tags:      nil,
 				},
 			},
