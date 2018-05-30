@@ -103,7 +103,9 @@ func (c *DefaultController) Stop() {
 
 	for _, v := range c.subscriptionModel {
 		for _, s := range v {
-			s.Stop()
+			if err := s.Stop(); err != nil {
+				log.Fatalf("error occured while stopping subscriber %s: %v", s.ID(), err)
+			}
 		}
 	}
 

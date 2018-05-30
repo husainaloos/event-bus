@@ -8,7 +8,7 @@ import (
 type Subscriber interface {
 	ID() string
 	Subscribe(messages.Message)
-	Run()
+	Run() error
 	GetDoneChannel() chan (messages.Message)
-	Stop()
+	Stop() error
 }

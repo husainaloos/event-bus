@@ -41,8 +41,9 @@ func (s *WriterSubscriber) Subscribe(m messages.Message) {
 }
 
 // Run starts the subscriber
-func (s *WriterSubscriber) Run() {
+func (s *WriterSubscriber) Run() error {
 	s.isRunning = true
+	return nil
 }
 
 // GetDoneChannel returns the channel that will be filled with processed messages
@@ -51,6 +52,7 @@ func (s WriterSubscriber) GetDoneChannel() chan (messages.Message) {
 }
 
 // Stop stops the subscriber
-func (s *WriterSubscriber) Stop() {
+func (s *WriterSubscriber) Stop() error {
 	s.isRunning = false
+	return nil
 }
