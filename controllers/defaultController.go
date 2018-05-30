@@ -9,8 +9,8 @@ import (
 	"github.com/husainaloos/event-bus/subscribers"
 )
 
-// DemoController demo controller
-type DemoController struct {
+// DefaultController default controller that will forward messages from publishers to subscribers
+type DefaultController struct {
 	id                string
 	publishers        []publishers.Publisher
 	subscriptionModel map[filters.Filter][]subscribers.Subscriber
@@ -18,9 +18,9 @@ type DemoController struct {
 	stopSignal        chan (bool)
 }
 
-// NewDemoController constructor
-func NewDemoController(ID string) *DemoController {
-	return &DemoController{
+// NewDefaultController constructor
+func NewDefaultController(ID string) *DefaultController {
+	return &DefaultController{
 		id:                ID,
 		publishChannel:    make(chan messages.Message),
 		publishers:        make([]publishers.Publisher, 0),
@@ -30,17 +30,17 @@ func NewDemoController(ID string) *DemoController {
 }
 
 // ID gets the ID
-func (c DemoController) ID() string {
+func (c DefaultController) ID() string {
 	return c.id
 }
 
 // RegisterPublisher registers a publisher
-func (c *DemoController) RegisterPublisher(p publishers.Publisher) {
+func (c *DefaultController) RegisterPublisher(p publishers.Publisher) {
 	c.publishers = append(c.publishers, p)
 }
 
 // RegisterSubscriber regiseter a subscriber with a filter
-func (c *DemoController) RegisterSubscriber(f filters.Filter, s subscribers.Subscriber) {
+func (c *DefaultController) RegisterSubscriber(f filters.Filter, s subscribers.Subscriber) {
 	var subscriptionList []subscribers.Subscriber
 
 	subscriptionList = c.subscriptionModel[f]
@@ -54,7 +54,7 @@ func (c *DemoController) RegisterSubscriber(f filters.Filter, s subscribers.Subs
 }
 
 // Start starts the controller
-func (c *DemoController) Start() {
+func (c *DefaultController) Start() {
 	for _, p := range c.publishers {
 		p.PublishTo(&c.publishChannel)
 
@@ -77,7 +77,7 @@ func (c *DemoController) Start() {
 	<-c.stopSignal
 }
 
-func (c *DemoController) handlePublishedMessages() {
+func (c *DefaultController) handlePublishedMessages() {
 
 	for {
 		select {
@@ -94,7 +94,7 @@ func (c *DemoController) handlePublishedMessages() {
 }
 
 // Stop stops the controller
-func (c *DemoController) Stop() {
+func (c *DefaultController) Stop() {
 	for _, p := range c.publishers {
 		if err := p.Stop(); err != nil {
 			log.Fatalf("error occured while stopping publisher %s: %v", p.ID(), err)
