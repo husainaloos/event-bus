@@ -29,18 +29,19 @@ func NewDefaultController(ID string) *DefaultController {
 	}
 }
 
-// ID gets the ID
+// ID gets the ID of the controller
 func (c DefaultController) ID() string {
 	return c.id
 }
 
-// RegisterPublisher registers a publisher
-func (c *DefaultController) RegisterPublisher(p publishers.Publisher) {
+// AddPublisher adds a publisher to the controller
+func (c *DefaultController) AddPublisher(p publishers.Publisher) {
 	c.publishers = append(c.publishers, p)
 }
 
-// RegisterSubscriber regiseter a subscriber with a filter
-func (c *DefaultController) RegisterSubscriber(f filters.Filter, s subscribers.Subscriber) {
+// AddSubscriber adds a subscriber to the controller.
+// A subscriber is required to have a filter by which the messages are filtered.
+func (c *DefaultController) AddSubscriber(f filters.Filter, s subscribers.Subscriber) {
 	var subscriptionList []subscribers.Subscriber
 
 	subscriptionList = c.subscriptionModel[f]
@@ -49,7 +50,6 @@ func (c *DefaultController) RegisterSubscriber(f filters.Filter, s subscribers.S
 	}
 
 	subscriptionList = append(subscriptionList, s)
-
 	c.subscriptionModel[f] = subscriptionList
 }
 

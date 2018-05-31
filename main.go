@@ -17,9 +17,9 @@ func main() {
 	f := filters.NewAlwaysAllowFilter()
 	s := subscribers.NewWriterSubscriber("subscriber1", os.Stdout)
 
-	c.RegisterPublisher(p1)
-	c.RegisterPublisher(p2)
-	c.RegisterSubscriber(f, s)
+	c.AddPublisher(p1)
+	c.AddPublisher(p2)
+	c.AddSubscriber(f, s)
 
 	go c.Start()
 
