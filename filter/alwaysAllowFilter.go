@@ -1,7 +1,7 @@
-package filters
+package filter
 
 import (
-	"github.com/husainaloos/event-bus/messages"
+	"github.com/husainaloos/event-bus/message"
 )
 
 // AlwaysAllowFilter filter that always says yet
@@ -14,6 +14,6 @@ func NewAlwaysAllowFilter() *AlwaysAllowFilter {
 }
 
 // Allow always allow the message
-func (f AlwaysAllowFilter) Allow(m messages.Message) bool {
+func (f AlwaysAllowFilter) Allow(m message.Message) bool {
 	return true
 }

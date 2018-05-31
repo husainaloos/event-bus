@@ -4,18 +4,18 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/husainaloos/event-bus/controllers"
-	"github.com/husainaloos/event-bus/filters"
-	"github.com/husainaloos/event-bus/publishers"
-	"github.com/husainaloos/event-bus/subscribers"
+	"github.com/husainaloos/event-bus/controller"
+	"github.com/husainaloos/event-bus/filter"
+	"github.com/husainaloos/event-bus/publisher"
+	"github.com/husainaloos/event-bus/subscriber"
 )
 
 func main() {
-	c := controllers.NewDefaultController("controller1")
-	p1 := publishers.NewTimedPublisher("publisher1")
-	p2 := publishers.NewTimedPublisher("publisher2")
-	f := filters.NewAlwaysAllowFilter()
-	s := subscribers.NewWriterSubscriber("subscriber1", os.Stdout)
+	c := controller.NewDefaultController("controller1")
+	p1 := publisher.NewTimedPublisher("publisher1")
+	p2 := publisher.NewTimedPublisher("publisher2")
+	f := filter.NewAlwaysAllowFilter()
+	s := subscriber.NewWriterSubscriber("subscriber1", os.Stdout)
 
 	c.AddPublisher(p1)
 	c.AddPublisher(p2)

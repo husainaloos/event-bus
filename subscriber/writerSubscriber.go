@@ -1,16 +1,16 @@
-package subscribers
+package subscriber
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/husainaloos/event-bus/messages"
+	"github.com/husainaloos/event-bus/message"
 )
 
 // WriterSubscriber Demonistration subscriber
 type WriterSubscriber struct {
 	id          string
-	doneChannel chan (messages.Message)
+	doneChannel chan (message.Message)
 	isRunning   bool
 	writer      io.Writer
 }
@@ -19,7 +19,7 @@ type WriterSubscriber struct {
 func NewWriterSubscriber(ID string, w io.Writer) *WriterSubscriber {
 	return &WriterSubscriber{
 		id:          ID,
-		doneChannel: make(chan messages.Message),
+		doneChannel: make(chan message.Message),
 		isRunning:   false,
 		writer:      w,
 	}
@@ -31,7 +31,7 @@ func (s WriterSubscriber) ID() string {
 }
 
 // Subscribe Get the message and sends it
-func (s *WriterSubscriber) Subscribe(m messages.Message) {
+func (s *WriterSubscriber) Subscribe(m message.Message) {
 	if !s.isRunning {
 		return
 	}
@@ -47,7 +47,7 @@ func (s *WriterSubscriber) Run() error {
 }
 
 // GetDoneChannel returns the channel that will be filled with processed messages
-func (s WriterSubscriber) GetDoneChannel() chan (messages.Message) {
+func (s WriterSubscriber) GetDoneChannel() chan (message.Message) {
 	return s.doneChannel
 }
 

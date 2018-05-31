@@ -1,20 +1,20 @@
-package controllers
+package controller
 
 import (
 	"log"
 
-	"github.com/husainaloos/event-bus/filters"
-	"github.com/husainaloos/event-bus/messages"
-	"github.com/husainaloos/event-bus/publishers"
-	"github.com/husainaloos/event-bus/subscribers"
+	"github.com/husainaloos/event-bus/filter"
+	"github.com/husainaloos/event-bus/message"
+	"github.com/husainaloos/event-bus/publisher"
+	"github.com/husainaloos/event-bus/subscriber"
 )
 
 // DefaultController default controller that will forward messages from publishers to subscribers
 type DefaultController struct {
 	id                string
-	publishers        []publishers.Publisher
-	subscriptionModel map[filters.Filter][]subscribers.Subscriber
-	publishChannel    chan (messages.Message)
+	publishers        []publisher.Publisher
+	subscriptionModel map[filter.Filter][]subscriber.Subscriber
+	publishChannel    chan (message.Message)
 	stopSignal        chan (bool)
 }
 
@@ -22,9 +22,9 @@ type DefaultController struct {
 func NewDefaultController(ID string) *DefaultController {
 	return &DefaultController{
 		id:                ID,
-		publishChannel:    make(chan messages.Message),
-		publishers:        make([]publishers.Publisher, 0),
-		subscriptionModel: make(map[filters.Filter][]subscribers.Subscriber),
+		publishChannel:    make(chan message.Message),
+		publishers:        make([]publisher.Publisher, 0),
+		subscriptionModel: make(map[filter.Filter][]subscriber.Subscriber),
 		stopSignal:        make(chan bool, 1),
 	}
 }
@@ -35,18 +35,18 @@ func (c DefaultController) ID() string {
 }
 
 // AddPublisher adds a publisher to the controller
-func (c *DefaultController) AddPublisher(p publishers.Publisher) {
+func (c *DefaultController) AddPublisher(p publisher.Publisher) {
 	c.publishers = append(c.publishers, p)
 }
 
 // AddSubscriber adds a subscriber to the controller.
 // A subscriber is required to have a filter by which the messages are filtered.
-func (c *DefaultController) AddSubscriber(f filters.Filter, s subscribers.Subscriber) {
-	var subscriptionList []subscribers.Subscriber
+func (c *DefaultController) AddSubscriber(f filter.Filter, s subscriber.Subscriber) {
+	var subscriptionList []subscriber.Subscriber
 
 	subscriptionList = c.subscriptionModel[f]
 	if subscriptionList == nil {
-		subscriptionList = make([]subscribers.Subscriber, 0)
+		subscriptionList = make([]subscriber.Subscriber, 0)
 	}
 
 	subscriptionList = append(subscriptionList, s)
@@ -58,7 +58,7 @@ func (c *DefaultController) Start() {
 	for _, p := range c.publishers {
 		p.PublishTo(&c.publishChannel)
 
-		go func(p publishers.Publisher) {
+		go func(p publisher.Publisher) {
 			err := p.Run()
 			if err != nil {
 				log.Fatalf("error occured while starting publisher %s: %v", p.ID(), err)

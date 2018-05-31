@@ -1,15 +1,15 @@
-package filters
+package filter
 
 import (
 	"testing"
 	"time"
 
-	"github.com/husainaloos/event-bus/messages"
+	"github.com/husainaloos/event-bus/message"
 )
 
 func TestAlwaysAllowFilter_Allow(t *testing.T) {
 	type args struct {
-		m messages.Message
+		m message.Message
 	}
 	tests := []struct {
 		name string
@@ -21,7 +21,7 @@ func TestAlwaysAllowFilter_Allow(t *testing.T) {
 			name: "should allow any generic message",
 			f:    AlwaysAllowFilter{},
 			args: args{
-				m: messages.Message{
+				m: message.Message{
 					CreatedAt: time.Now(),
 					ID:        "123",
 					Payload:   "with payload",
@@ -35,7 +35,7 @@ func TestAlwaysAllowFilter_Allow(t *testing.T) {
 			name: "should allow empty message",
 			f:    AlwaysAllowFilter{},
 			args: args{
-				m: messages.Message{},
+				m: message.Message{},
 			},
 			want: true,
 		},
