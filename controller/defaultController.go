@@ -2,6 +2,7 @@ package controller
 
 import (
 	"log"
+	"sync"
 
 	"github.com/husainaloos/event-bus/filter"
 	"github.com/husainaloos/event-bus/message"
@@ -95,19 +96,40 @@ func (c *DefaultController) handlePublishedMessages() {
 
 // Stop stops the controller
 func (c *DefaultController) Stop() {
-	for _, p := range c.publishers {
-		if err := p.Stop(); err != nil {
-			log.Fatalf("error occured while stopping publisher %s: %v", p.ID(), err)
-		}
-	}
+	c.stopAllPublishers()
+	c.stopAllSubscribers()
+	c.stopSignal <- true
+	log.Printf("controller %s has stopped.", c.ID())
+}
 
+func (c *DefaultController) stopAllSubscribers() {
+	var subscriberWaitGroup sync.WaitGroup
+	subscriberWaitGroup.Add(len(c.subscriptionModel))
 	for _, v := range c.subscriptionModel {
 		for _, s := range v {
-			if err := s.Stop(); err != nil {
-				log.Fatalf("error occured while stopping subscriber %s: %v", s.ID(), err)
-			}
+			go func(s subscriber.Subscriber) {
+				if err := s.Stop(); err != nil {
+					log.Fatalf("error occured while stopping subscriber %s: %v", s.ID(), err)
+				}
+				subscriberWaitGroup.Done()
+			}(s)
 		}
 	}
 
-	c.stopSignal <- true
+	subscriberWaitGroup.Wait()
+}
+
+func (c *DefaultController) stopAllPublishers() {
+	var publisherWaitGroup sync.WaitGroup
+	publisherWaitGroup.Add(len(c.publishers))
+	for _, p := range c.publishers {
+		go func(p publisher.Publisher) {
+			if err := p.Stop(); err != nil {
+				log.Fatalf("error occured while stopping publisher %s: %v", p.ID(), err)
+			}
+			publisherWaitGroup.Done()
+		}(p)
+	}
+
+	publisherWaitGroup.Wait()
 }
