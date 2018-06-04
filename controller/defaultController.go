@@ -79,15 +79,11 @@ func (c *DefaultController) Start() {
 }
 
 func (c *DefaultController) handlePublishedMessages() {
-
-	for {
-		select {
-		case m := <-c.publishChannel:
-			for f, subs := range c.subscriptionModel {
-				if f.Allow(m) {
-					for _, s := range subs {
-						s.Subscribe(m)
-					}
+	for m := range c.publishChannel {
+		for f, subs := range c.subscriptionModel {
+			if f.Allow(m) {
+				for _, s := range subs {
+					s.Subscribe(m)
 				}
 			}
 		}
