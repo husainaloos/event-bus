@@ -73,12 +73,11 @@ func (c *DefaultController) Start() {
 		}
 	}
 
-	go c.handlePublishedMessages()
-
+	go c.listen()
 	<-c.stopSignal
 }
 
-func (c *DefaultController) handlePublishedMessages() {
+func (c *DefaultController) listen() {
 	for m := range c.publishChannel {
 		for f, subs := range c.subscriptionModel {
 			if f.Allow(m) {
