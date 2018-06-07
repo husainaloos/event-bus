@@ -57,7 +57,7 @@ func (c *DefaultController) AddSubscriber(f filter.Filter, s subscriber.Subscrib
 // Start starts the controller
 func (c *DefaultController) Start() {
 	for _, p := range c.publishers {
-		p.PublishTo(&c.publishChannel)
+		p.PublishTo(c.publishChannel)
 
 		go func(p publisher.Publisher) {
 			err := p.Run()

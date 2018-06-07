@@ -11,7 +11,7 @@ import (
 // TimedPublisher demo publisher for testing and demonistration only
 type TimedPublisher struct {
 	id               string
-	publishToChannel *chan (message.Message)
+	publishToChannel chan (message.Message)
 	isRunning        bool
 }
 
@@ -30,7 +30,7 @@ func (p TimedPublisher) ID() string {
 }
 
 // PublishTo publishes to channel
-func (p *TimedPublisher) PublishTo(channel *chan (message.Message)) {
+func (p *TimedPublisher) PublishTo(channel chan (message.Message)) {
 	p.publishToChannel = channel
 }
 
@@ -50,7 +50,7 @@ func (p *TimedPublisher) Run() error {
 			return err
 		}
 
-		*p.publishToChannel <- message.Message{
+		p.publishToChannel <- message.Message{
 			CreatedAt: time.Now().UTC(),
 			ID:        id.String(),
 			Payload:   fmt.Sprintf("message from %s", p.id),
