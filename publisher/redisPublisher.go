@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/garyburd/redigo/redis"
 	"github.com/husainaloos/event-bus/message"
 )
 
@@ -15,20 +15,16 @@ type RedisPublisher struct {
 	addr             string
 	password         string
 	redisChannelName string
-	client           *redis.Client
 	publishTo        chan message.Message
-	interrupt        chan bool
-	errorStopping    chan error
 }
 
 // NewRedisPublisher creates a new RedisPublisher
-func NewRedisPublisher(id, addr, password string) *RedisPublisher {
+func NewRedisPublisher(id, addr, password, channelName string) *RedisPublisher {
 	return &RedisPublisher{
-		addr:          addr,
-		password:      password,
-		id:            id,
-		interrupt:     make(chan bool, 1),
-		errorStopping: make(chan error, 1),
+		addr:             addr,
+		password:         password,
+		id:               id,
+		redisChannelName: channelName,
 	}
 }
 
@@ -48,43 +44,60 @@ func (r *RedisPublisher) Run() error {
 		return errors.New("publish channel is not set")
 	}
 
-	r.client = redis.NewClient(&redis.Options{
-		Addr:     r.addr,
-		Password: r.password,
-	})
+	conn, err := redis.Dial("tcp", r.addr, redis.DialKeepAlive(1*time.Minute), redis.DialPassword(r.password))
+	if err != nil {
+		log.Fatalf("%s: unable to connect to redis. %+v", r.ID(), err)
+	}
 
-	sub := r.client.Subscribe(r.redisChannelName)
+	pubSubConn := redis.PubSubConn{
+		Conn: conn,
+	}
 
-	go func() {
+	pubSubConn.PSubscribe(r.redisChannelName)
+	go func(pubSubConn redis.PubSubConn) {
 		for {
+			response := pubSubConn.ReceiveWithTimeout(1 * time.Second)
 
-			select {
-			case <-r.interrupt:
-				log.Printf("received interrupt singnal. stopping")
-				if err := sub.Close(); err != nil {
-					r.errorStopping <- err
-				}
-				if err := r.client.Close(); err != nil {
-					r.errorStopping <- err
-				}
-				break
-			default:
-				m, err := sub.ReceiveTimeout(5 * time.Second)
-				if err != nil {
-					log.Printf("cannot read from the redis channel: %+v", err)
-				} else {
-					log.Printf("%v", m)
-				}
+			sub, ok := response.(redis.Subscription)
+			if ok {
+				log.Printf("%s: received subscription: %+v", r.ID(), sub)
+				continue
 			}
+
+			mes, ok := response.(redis.PMessage)
+			if ok {
+				log.Printf("%s received message from channel %s: %+v", r.ID(), mes.Channel, mes)
+
+				r.publishTo <- message.Message{
+					ID:        "someId",
+					CreatedAt: time.Now().UTC(),
+					Tags:      nil,
+					Payload:   string(mes.Data),
+				}
+
+				continue
+			}
+
+			pong, ok := response.(redis.Pong)
+			if ok {
+				log.Printf("%s: received pong: %+v", r.ID(), pong)
+				continue
+			}
+
+			err, ok := response.(redis.Error)
+			if ok {
+				log.Fatalf("%s: received err: %+v", r.ID(), err)
+				continue
+			}
+
+			log.Fatalf("%s: the message received from redis is unrecognized. %+v", r.ID(), response)
 		}
-	}()
+	}(pubSubConn)
 
 	return nil
 }
 
 // Stop stops the redis publisher
 func (r *RedisPublisher) Stop() error {
-	r.interrupt <- true
-	err := <-r.errorStopping
-	return err
+	return nil
 }
