@@ -46,51 +46,37 @@ func (r *RedisPublisher) Run() error {
 
 	conn, err := redis.Dial("tcp", r.addr, redis.DialKeepAlive(1*time.Minute), redis.DialPassword(r.password))
 	if err != nil {
-		log.Fatalf("%s: unable to connect to redis. %+v", r.ID(), err)
+		return err
 	}
 
 	pubSubConn := redis.PubSubConn{
 		Conn: conn,
 	}
 
-	pubSubConn.PSubscribe(r.redisChannelName)
+	if err := pubSubConn.PSubscribe(r.redisChannelName); err != nil {
+		return err
+	}
+
 	go func(pubSubConn redis.PubSubConn) {
 		for {
-			response := pubSubConn.ReceiveWithTimeout(1 * time.Second)
-
-			sub, ok := response.(redis.Subscription)
-			if ok {
-				log.Printf("%s: received subscription: %+v", r.ID(), sub)
-				continue
-			}
-
-			mes, ok := response.(redis.PMessage)
-			if ok {
-				log.Printf("%s received message from channel %s: %+v", r.ID(), mes.Channel, mes)
-
+			switch response := pubSubConn.Receive().(type) {
+			case redis.PMessage:
+				log.Printf("%s received message from channel %s: %+v", r.ID(), response.Channel, response)
 				r.publishTo <- message.Message{
 					ID:        "someId",
 					CreatedAt: time.Now().UTC(),
 					Tags:      nil,
-					Payload:   string(mes.Data),
+					Payload:   string(response.Data),
 				}
-
-				continue
+			case redis.Subscription:
+				log.Printf("%s: received subscription message: %+v", r.ID(), response)
+			case redis.Pong:
+				log.Printf("%s: received pong: %+v", r.ID(), response)
+			case error:
+				log.Fatalf("%s: the message received from redis is unrecognized. %+v", r.ID(), response)
+			default:
+				log.Printf("%s: not sure what's going on. %T %+v", r.ID(), response, response)
 			}
-
-			pong, ok := response.(redis.Pong)
-			if ok {
-				log.Printf("%s: received pong: %+v", r.ID(), pong)
-				continue
-			}
-
-			err, ok := response.(redis.Error)
-			if ok {
-				log.Fatalf("%s: received err: %+v", r.ID(), err)
-				continue
-			}
-
-			log.Fatalf("%s: the message received from redis is unrecognized. %+v", r.ID(), response)
 		}
 	}(pubSubConn)
 
