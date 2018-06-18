@@ -17,8 +17,7 @@ type RedisPublisher struct {
 	redisChannelName string
 	publishTo        chan message.Message
 	redisConn        redis.Conn
-	closing          chan bool
-	closed           chan bool
+	pubSub           *redis.PubSubConn
 }
 
 // NewRedisPublisher creates a new RedisPublisher
@@ -29,8 +28,6 @@ func NewRedisPublisher(id, addr, password, channelName string) *RedisPublisher {
 		id:               id,
 		redisChannelName: channelName,
 		redisConn:        nil,
-		closing:          make(chan bool, 1),
-		closed:           make(chan bool, 1),
 	}
 }
 
@@ -56,17 +53,17 @@ func (r *RedisPublisher) Run() error {
 		return err
 	}
 
-	pubSubConn := redis.PubSubConn{
+	r.pubSub = &redis.PubSubConn{
 		Conn: r.redisConn,
 	}
 
-	if err := pubSubConn.PSubscribe(r.redisChannelName); err != nil {
+	if err := r.pubSub.PSubscribe(r.redisChannelName); err != nil {
 		return err
 	}
 
-	go func(pubSubConn redis.PubSubConn) {
+	go func(pubSubConn *redis.PubSubConn) {
 		for {
-			switch response := pubSubConn.Receive().(type) {
+			switch response := r.pubSub.Receive().(type) {
 			case redis.PMessage:
 				log.Printf("%s received message from channel %s: %+v", r.ID(), response.Channel, response)
 				r.publishTo <- message.Message{
@@ -80,19 +77,12 @@ func (r *RedisPublisher) Run() error {
 			case redis.Pong:
 				log.Printf("%s: received pong: %+v", r.ID(), response)
 			case error:
-				select {
-				case <-r.closing:
-					log.Printf("%s: closing redis publisher.", r.ID())
-					r.closed <- true
-					break
-				default:
-					log.Fatalf("%s: the message received from redis is unrecognized. %+v", r.ID(), response)
-				}
+				log.Fatalf("%s: the message received from redis is unrecognized. %+v", r.ID(), response)
 			default:
 				log.Printf("%s: not sure what's going on. %T %+v", r.ID(), response, response)
 			}
 		}
-	}(pubSubConn)
+	}(r.pubSub)
 
 	return nil
 }
@@ -100,8 +90,5 @@ func (r *RedisPublisher) Run() error {
 // Stop stops the redis publisher
 func (r *RedisPublisher) Stop() error {
 	log.Printf("%s: closing", r.ID())
-	r.closing <- true
-	err := r.redisConn.Close()
-	<-r.closed
-	return err
+	return r.pubSub.PUnsubscribe("*")
 }
