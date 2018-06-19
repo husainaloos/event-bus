@@ -74,7 +74,7 @@ func (r *RedisPublisher) Run() error {
 					Payload:   string(response.Data),
 				}
 			case redis.Subscription:
-				log.Printf("%s: received subscription message: %+v", r.ID(), response)
+				log.Printf("%s: %s to %s", r.ID(), response.Kind, response.Channel)
 			case redis.Pong:
 				log.Printf("%s: received pong: %+v", r.ID(), response)
 			case error:
