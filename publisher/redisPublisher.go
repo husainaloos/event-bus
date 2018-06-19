@@ -1,6 +1,7 @@
 package publisher
 
 import (
+	"fmt"
 	"errors"
 	"log"
 	"time"
@@ -90,5 +91,14 @@ func (r *RedisPublisher) Run() error {
 // Stop stops the redis publisher
 func (r *RedisPublisher) Stop() error {
 	log.Printf("%s: closing", r.ID())
-	return r.pubSub.PUnsubscribe("*")
+
+	if err := r.pubSub.PUnsubscribe("*"); err != nil {
+		return fmt.Errorf("cannot close redis subscription: %+v", err);
+	}
+
+	if err := r.redisConn.Close(); err != nil{
+		return fmt.Errorf("cannot close connection to redis: %+v", err);
+	}
+
+	return nil
 }
